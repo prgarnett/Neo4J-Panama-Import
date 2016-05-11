@@ -13,10 +13,10 @@ public class App
 {
     public static void main(String args[])
     {
-        LoadCSVs load = new LoadCSVs("/mnt/secure/philip/Panama");
+        LoadCSVs load = new LoadCSVs(args[0]);
         load.makeIndexs();
         load.loadTheCSVFiles();
-        load.loadTheNodes();
+//        load.loadTheNodes();
         load.makeTheEdges();
     }
 }

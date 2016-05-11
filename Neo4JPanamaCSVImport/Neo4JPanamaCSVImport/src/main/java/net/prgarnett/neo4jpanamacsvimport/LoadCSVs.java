@@ -12,6 +12,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.MultipleFoundException;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
@@ -283,23 +284,33 @@ public class LoadCSVs
             
             for(CSVRecord record : records)
             {
-                Node sourceNode = this.getNode(Integer.parseInt(record.get("node_1")));
-                Node desNode = this.getNode(Integer.parseInt(record.get("node_2")));
+                if(!record.get("node_1").equals("node_1"))//skip the header
+                {
+                    try
+                    {
+                        Node sourceNode = this.getNode(Integer.parseInt(record.get("node_1")));
+                        Node desNode = this.getNode(Integer.parseInt(record.get("node_2")));
 
-                Relationship rel = sourceNode.createRelationshipTo(desNode, RelationshipType.withName(record.get("rel_type")));
-                System.out.println(rel.getStartNode().getId() + "<->" + rel.getEndNode().getId());
+                    
+                        Relationship rel = sourceNode.createRelationshipTo(desNode, RelationshipType.withName(record.get("rel_type")));
+                        System.out.println(rel.getStartNode().getId() + " <-" + rel.getType().name() + "-> " + rel.getEndNode().getId());
+                    }
+                    catch(MultipleFoundException e)
+                    {
+                        System.out.println("Found Multiple Nodes with ID: " + record.get("node_1") + " ID: " + record.get("node_2"));
+                    }
+                }
             }
             
             tx.success();
         }
         catch (IOException | NumberFormatException e)
         {
-            System.out.println(e.getMessage());
+            System.err.println("Error: " + e.getMessage());
         }
     }
     
-    
-    private Node getNode(Integer nodeID)
+    private Node getNode(Integer nodeID) throws MultipleFoundException
     {
         Label label = Label.label( "Panama" );
         return graphDB.findNode(label, "node_id", nodeID);
