@@ -16,7 +16,7 @@ public class App
         LoadCSVs load = new LoadCSVs(args[0]);
         load.makeIndexs();
         load.loadTheCSVFiles();
-//        load.loadTheNodes();
+        load.loadTheNodes();
         load.makeTheEdges();
     }
 }
